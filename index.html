@@ -994,6 +994,7 @@ function loadCustomDB() {
           barre: item.barre ?? undefined,
           priority: 0, scope: 'custom', allowIntervals: [],
           tag: 'custom', note: item.note ?? 'ユーザー追加',
+          noRoot: true,
         });
         if (!validatePos(pos, rootPc, typeId)) return null;
         pos.id = item.id || `custom-${key}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
@@ -1068,6 +1069,7 @@ function addCustomForm(rootPc, typeId, form) {
     priority: 0, scope: 'custom',
     allowIntervals: form.allowIntervals ?? [],
     tag: 'custom', note: form.note ?? 'ユーザー追加',
+    noRoot: true,
   });
   if (!validatePos(pos, rootPc, typeId)) return false;
   const list = CUSTOM_FORM_DB[key] || (CUSTOM_FORM_DB[key] = []);
@@ -1099,6 +1101,7 @@ function updateCustomForm(rootPc, typeId, formId, updates) {
     frets: updates.frets, barre: updates.barre ?? undefined,
     priority: 0, scope: 'custom', allowIntervals: [],
     tag: 'custom', note: updates.note ?? 'ユーザー追加',
+    noRoot: true,
   });
   if (!validatePos(next, rootPc, typeId)) return false;
   const prev = list[idx];
@@ -2170,21 +2173,12 @@ function makeDefaultCustomName(frets) {
 }
 
 document.getElementById('cbSaveBtn').addEventListener('click', () => {
-  const { rootPc } = getBuilderContext();
   const frets  = [...CB.placed].map(f => f === undefined ? null : f);
   const errEl  = document.getElementById('cbErr');
 
   // 条件1: 実音が2音以上
   const realPlayed = frets.filter(f => typeof f === 'number' && f >= 0);
   if (realPlayed.length < 2) { errEl.textContent = '2音以上配置してください'; return; }
-
-  // 条件2: root音を1つ以上含む
-  const rootPcCanon = canon(rootPc);
-  const hasRootNote = frets.some((f, s) => {
-    if (typeof f !== 'number' || f < 0) return false;
-    return canon(noteAt(s, f)) === rootPcCanon;
-  });
-  if (!hasRootNote) { errEl.textContent = 'ルート音を1つ以上含めてください'; return; }
 
   const rawName = document.getElementById('cbNameInput').value.trim();
   const customName = rawName || makeDefaultCustomName(frets);
