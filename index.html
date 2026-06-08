@@ -92,7 +92,7 @@ svg{display:block}
   border:2px dashed var(--border);border-radius:14px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:8px;cursor:pointer;transition:border-color .15s,background .15s;
-  color:var(--muted);align-self:center}
+  color:var(--muted);align-self:center;font:inherit;padding:0;appearance:none;text-align:center}
 .add-card:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--card));color:var(--accent)}
 .add-card-icon{font-size:32px;font-weight:300;line-height:1}
 .add-card-label{font-size:11px;font-weight:700;letter-spacing:1px}
@@ -103,6 +103,7 @@ svg{display:block}
   align-items:center;gap:8px;position:relative;
   cursor:pointer;transition:border-color .15s,box-shadow .15s,background .15s}
 .diag-card:hover{border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
+.diag-card:focus-visible,.add-card:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 70%,transparent);outline-offset:3px}
 .diag-card.selected{
   border-color:var(--accent);
   background:color-mix(in srgb,var(--accent) 7%,var(--card));
@@ -404,6 +405,13 @@ const canon   = n        => FLAT_MAP[n] || SHARP_MAP[n] || n;
 const noteIdx = n        => CHROMATIC.indexOf(canon(n));
 const noteAt  = (s, f)   => CHROMATIC[(noteIdx(OPEN_STRINGS[s]) + f) % 12];
 const transp  = (r, semi)=> { const i = noteIdx(r); return i < 0 ? null : CHROMATIC[(i+semi+120)%12]; };
+const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+}[ch]));
 
 const IV_TO_DEGREE_SPELL = {
    0: { lo:0, alt: 0 },
@@ -1445,10 +1453,10 @@ function buildDiagCardsHTML(positions, rootSpell, typeId, formMode, selectedForm
 
   let addBtn = '';
   if (formMode === 'custom') {
-    addBtn = `<div class="add-card" id="addCustomBtn">
+    addBtn = `<button class="add-card" id="addCustomBtn" type="button" aria-label="カスタムフォームを追加">
       <span class="add-card-icon">＋</span>
       <span class="add-card-label">追加</span>
-    </div>`;
+    </button>`;
   }
 
   let cardsHTML = '';
@@ -1479,12 +1487,15 @@ function buildDiagCardsHTML(positions, rootSpell, typeId, formMode, selectedForm
         extraBadge = `<span class="meta-badge custom">custom</span>`;
       }
       const isSelected = pos.id === activeId;
+      const safeId = escapeHTML(pos.id);
+      const safeTopLabel = escapeHTML(topLabel);
+      const selectedText = isSelected ? ' aria-pressed="true"' : ' aria-pressed="false"';
       const delBtnHTML = formMode === 'custom'
-        ? `<button class="card-del-btn" data-del-id="${pos.id}" data-del-root="${rootPc}" data-del-type="${typeId}" aria-label="カスタムフォームを削除">×</button>
-           <button class="card-edit-btn" data-edit-id="${pos.id}" aria-label="カスタムフォームを編集">✎</button>`
+        ? `<button class="card-del-btn" data-del-id="${safeId}" data-del-root="${escapeHTML(rootPc)}" data-del-type="${escapeHTML(typeId)}" aria-label="カスタムフォームを削除">×</button>
+           <button class="card-edit-btn" data-edit-id="${safeId}" aria-label="カスタムフォームを編集">✎</button>`
         : '';
-      const topBadge = topLabel ? `<span class="meta-badge">${topLabel}</span>` : '';
-      return `<div class="diag-card${isSelected?' selected':''}" data-form-id="${pos.id}">
+      const topBadge = topLabel ? `<span class="meta-badge">${safeTopLabel}</span>` : '';
+      return `<div class="diag-card${isSelected?' selected':''}" data-form-id="${safeId}" role="button" tabindex="0"${selectedText} aria-label="${safeTopLabel || 'コードフォーム'}">
         ${delBtnHTML}
         <div class="diag-card-meta">
           ${topBadge}
@@ -1550,9 +1561,11 @@ const formModeBtnsMB = (mode, invCount) => {
 // カード selected クラスの付け外しを専任する関数
 // [data-form-id] の selected 状態を selectedFormId に合わせて同期する
 function updateSelectedCardUI(selectedFormId) {
-  document.querySelectorAll('[data-form-id]').forEach(el =>
-    el.classList.toggle('selected', el.dataset.formId === selectedFormId)
-  );
+  document.querySelectorAll('[data-form-id]').forEach(el => {
+    const selected = el.dataset.formId === selectedFormId;
+    el.classList.toggle('selected', selected);
+    el.setAttribute('aria-pressed', selected ? 'true' : 'false');
+  });
 }
 
 // 再同期込みで指板表示を更新する
@@ -1717,7 +1730,7 @@ function bind() {
       renderApp();
     });
   document.querySelectorAll('[data-form-id]').forEach(el => {
-    el.onclick = e => {
+    const selectForm = e => {
       if (e.target.closest('[data-del-id]')) return;
       if (e.target.closest('[data-edit-id]')) return;
       // 1. selectedFormId 更新（同じカード再タップで null に戻す）
@@ -1727,6 +1740,12 @@ function bind() {
       updateSelectedCardUI(S.selectedFormId);
       // 3. 指板を再同期 + 更新
       updateFretboard();
+    };
+    el.onclick = selectForm;
+    el.onkeydown = e => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      selectForm(e);
     };
   });
 
