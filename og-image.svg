@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1a1a1a"/>
+  <rect x="64" y="54" width="1072" height="522" rx="34" fill="#222222" stroke="#3a3a3a" stroke-width="3"/>
+  <text x="112" y="142" font-family="Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif" font-size="58" font-weight="900" fill="#f0f0f0">Guitar Chord Viewer</text>
+  <text x="114" y="198" font-family="Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif" font-size="28" font-weight="700" fill="#a0a0a0">構成音・度数・フォームを一画面で確認</text>
+  <g transform="translate(112 260)">
+    <rect width="88" height="58" rx="12" fill="#c9a84c"/>
+    <rect x="104" width="88" height="58" rx="12" fill="#2a2a2a" stroke="#3a3a3a"/>
+    <rect x="208" width="88" height="58" rx="12" fill="#2a2a2a" stroke="#3a3a3a"/>
+    <text x="44" y="38" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#1a1a1a">C</text>
+    <text x="148" y="38" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#f0f0f0">D</text>
+    <text x="252" y="38" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#f0f0f0">E</text>
+  </g>
+  <g transform="translate(112 358)">
+    <rect width="430" height="112" rx="20" fill="#2a2a2a" stroke="#3a3a3a"/>
+    <text x="44" y="70" font-family="Arial, sans-serif" font-size="58" font-weight="900" fill="#f0f0f0">C</text>
+    <text x="250" y="45" font-family="Arial, 'Hiragino Sans', sans-serif" font-size="22" font-weight="800" fill="#a0a0a0">構成音</text>
+    <text x="250" y="79" font-family="Arial, sans-serif" font-size="28" font-weight="900" fill="#f0f0f0">C E G</text>
+  </g>
+  <g transform="translate(694 106)">
+    <rect width="338" height="410" rx="28" fill="#2a2a2a" stroke="#3a3a3a" stroke-width="3"/>
+    <text x="169" y="62" text-anchor="middle" font-family="Arial, sans-serif" font-size="44" font-weight="900" fill="#f0f0f0">C</text>
+    <path d="M74 132h220M74 188h220M74 244h220M74 300h220M74 356h220M82 116v260M138 116v260M194 116v260M250 116v260M294 116v260" stroke="#5a5a5a" stroke-width="5" stroke-linecap="round"/>
+    <path d="M82 116v260" stroke="#d4c5a0" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="82" cy="188" r="30" fill="#ef4444"/>
+    <circle cx="194" cy="300" r="30" fill="#10b981"/>
+    <circle cx="250" cy="244" r="30" fill="#ef4444"/>
+    <text x="82" y="199" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="900" fill="#fff">R</text>
+    <text x="194" y="311" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="900" fill="#fff">3</text>
+    <text x="250" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="900" fill="#fff">R</text>
+  </g>
+</svg>

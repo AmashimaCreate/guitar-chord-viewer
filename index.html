@@ -3,7 +3,22 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-<title>Guitar Chord Viewer v6</title>
+<title>Guitar Chord Viewer</title>
+<meta name="description" content="ギターコードの構成音、度数、フォーム、指板上の音を一画面で確認できるコードビューア。"/>
+<meta name="theme-color" content="#1a1a1a"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Guitar Chord Viewer"/>
+<meta property="og:description" content="ギターコードの構成音、度数、フォーム、指板上の音を一画面で確認できるコードビューア。"/>
+<meta property="og:url" content="https://amashimacreate.github.io/guitar-chord-viewer/"/>
+<meta property="og:image" content="https://amashimacreate.github.io/guitar-chord-viewer/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:locale" content="ja_JP"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Guitar Chord Viewer"/>
+<meta name="twitter:description" content="ギターコードの構成音、度数、フォーム、指板上の音を一画面で確認できるコードビューア。"/>
+<meta name="twitter:image" content="https://amashimacreate.github.io/guitar-chord-viewer/og-image.png"/>
+<link rel="icon" type="image/svg+xml" href="./favicon.svg"/>
 <style>
 :root{
   --bg:#1a1a1a; --surface:#222; --card:#2a2a2a; --border:#3a3a3a;
@@ -340,7 +355,7 @@ svg{display:block}
     <div class="cb-header">
       <span class="cb-title" id="cbTitle">CUSTOM FORM</span>
       <span class="cb-chord-lbl" id="cbChordLbl"></span>
-      <button class="cb-close" id="cbClose">✕</button>
+      <button class="cb-close" id="cbClose" aria-label="カスタムフォーム作成を閉じる">✕</button>
     </div>
     <div class="cb-comp" id="cbComp"></div>
     <div class="cb-range-row">
@@ -353,11 +368,11 @@ svg{display:block}
       <div class="cb-hint">構成音をタップして配置 • 配置済みをタップで解除 • 弦名をタップでミュート</div>
     </div>
     <div class="cb-actions">
-      <input class="cb-name-input" id="cbNameInput" type="text" placeholder="フォーム名（任意）" maxlength="32"/>
+      <input class="cb-name-input" id="cbNameInput" type="text" placeholder="フォーム名（任意）" aria-label="フォーム名" maxlength="32"/>
       <div class="cb-err" id="cbErr"></div>
       <div class="cb-btn-row">
-        <button class="cb-clear" id="cbClearBtn">配置クリア</button>
-        <button class="cb-save" id="cbSaveBtn" disabled>保存</button>
+        <button class="cb-clear" id="cbClearBtn" aria-label="配置をクリア">配置クリア</button>
+        <button class="cb-save" id="cbSaveBtn" aria-label="カスタムフォームを保存" disabled>保存</button>
       </div>
     </div>
   </div>
@@ -1465,8 +1480,8 @@ function buildDiagCardsHTML(positions, rootSpell, typeId, formMode, selectedForm
       }
       const isSelected = pos.id === activeId;
       const delBtnHTML = formMode === 'custom'
-        ? `<button class="card-del-btn" data-del-id="${pos.id}" data-del-root="${rootPc}" data-del-type="${typeId}">×</button>
-           <button class="card-edit-btn" data-edit-id="${pos.id}">✎</button>`
+        ? `<button class="card-del-btn" data-del-id="${pos.id}" data-del-root="${rootPc}" data-del-type="${typeId}" aria-label="カスタムフォームを削除">×</button>
+           <button class="card-edit-btn" data-edit-id="${pos.id}" aria-label="カスタムフォームを編集">✎</button>`
         : '';
       const topBadge = topLabel ? `<span class="meta-badge">${topLabel}</span>` : '';
       return `<div class="diag-card${isSelected?' selected':''}" data-form-id="${pos.id}">
@@ -1502,28 +1517,30 @@ function buildThemeHTML(theme) {
   return Object.values(THEMES).map(t => {
     const bg = t.id==='dark' ? '#1a1a1a' : t.dot;
     const bd = t.id==='dark' ? '#c9a84c' : 'transparent';
-    return `<button class="theme-btn${theme===t.id?' active':''}" data-theme="${t.id}" title="${t.label}" style="background:${bg};border-color:${bd}"></button>`;
+    return `<button class="theme-btn${theme===t.id?' active':''}" data-theme="${t.id}" title="${t.label}" aria-label="${t.label}テーマに切り替え" aria-pressed="${theme===t.id}" style="background:${bg};border-color:${bd}"></button>`;
   }).join('');
 }
 
 const tabBtnsPC = si =>
-  `<button class="pc-tab-btn${!si?' active':''}" data-tab="notes">音名</button>
-   <button class="pc-tab-btn${si?' active':''}" data-tab="interval">度数</button>`;
+  `<button class="pc-tab-btn${!si?' active':''}" data-tab="notes" aria-pressed="${!si}">音名</button>
+   <button class="pc-tab-btn${si?' active':''}" data-tab="interval" aria-pressed="${si}">度数</button>`;
 const tabBtnsMB = si =>
-  `<button class="tab${!si?' active':''}" data-tab="notes" style="border-radius:8px;flex:1">音名</button>
-   <button class="tab${si?' active':''}" data-tab="interval" style="border-radius:8px;flex:1">度数</button>`;
+  `<button class="tab${!si?' active':''}" data-tab="notes" aria-pressed="${!si}" style="border-radius:8px;flex:1">音名</button>
+   <button class="tab${si?' active':''}" data-tab="interval" aria-pressed="${si}" style="border-radius:8px;flex:1">度数</button>`;
 const formModeBtnsPC = (mode, invCount) => {
   const invStyle = invCount === 0 ? ' style="color:var(--faint)"' : '';
-  return `<button class="pc-tab-btn${mode==='standard'?' active':''}" data-form-mode="standard">標準</button>
-   <button class="pc-tab-btn${mode==='inversion'?' active':''}" data-form-mode="inversion"${invStyle}>転回形</button>
-   <button class="pc-tab-btn${mode==='custom'?' active':''}" data-form-mode="custom">カスタム</button>`;
+  const invDisabled = invCount === 0 ? ' aria-disabled="true"' : '';
+  return `<button class="pc-tab-btn${mode==='standard'?' active':''}" data-form-mode="standard" aria-pressed="${mode==='standard'}">標準</button>
+   <button class="pc-tab-btn${mode==='inversion'?' active':''}" data-form-mode="inversion" aria-pressed="${mode==='inversion'}"${invDisabled}${invStyle}>転回形</button>
+   <button class="pc-tab-btn${mode==='custom'?' active':''}" data-form-mode="custom" aria-pressed="${mode==='custom'}">カスタム</button>`;
 };
 const formModeBtnsMB = (mode, invCount) => {
   const baseStyle = 'border-radius:8px;flex:1';
   const invStyle  = invCount === 0 ? `${baseStyle};color:var(--faint)` : baseStyle;
-  return `<button class="tab${mode==='standard'?' active':''}" data-form-mode="standard" style="${baseStyle}">標準</button>
-   <button class="tab${mode==='inversion'?' active':''}" data-form-mode="inversion" style="${invStyle}">転回形</button>
-   <button class="tab${mode==='custom'?' active':''}" data-form-mode="custom" style="${baseStyle}">カスタム</button>`;
+  const invDisabled = invCount === 0 ? ' aria-disabled="true"' : '';
+  return `<button class="tab${mode==='standard'?' active':''}" data-form-mode="standard" aria-pressed="${mode==='standard'}" style="${baseStyle}">標準</button>
+   <button class="tab${mode==='inversion'?' active':''}" data-form-mode="inversion" aria-pressed="${mode==='inversion'}"${invDisabled} style="${invStyle}">転回形</button>
+   <button class="tab${mode==='custom'?' active':''}" data-form-mode="custom" aria-pressed="${mode==='custom'}" style="${baseStyle}">カスタム</button>`;
 };
 
 /* ============================================================
@@ -1627,19 +1644,21 @@ function renderButtons() {
   const { root, acc, type, theme } = getUIStateSnapshot();
   const d = isDesktop();
   const rootH = NATURALS.map(r =>
-    `<button class="btn root${root===r?' active':''}" data-root="${r}">${r}</button>`).join('');
+    `<button class="btn root${root===r?' active':''}" data-root="${r}" aria-pressed="${root===r}" aria-label="ルート ${r}">${r}</button>`).join('');
   const accH = [{id:'b',lbl:'♭ 半音下'},{id:'#',lbl:'♯ 半音上'}].map(x => {
     const noop = isNoopAcc(root, x.id);
     const cls  = `btn acc${acc===x.id?' active':''}`;
     const style = noop ? ' style="color:var(--faint);cursor:default"' : '';
-    return `<button class="${cls}" data-acc="${x.id}"${style}>${x.lbl}</button>`;
+    const label = x.id === 'b' ? 'フラット側に切り替え' : 'シャープ側に切り替え';
+    const disabled = noop ? ' aria-disabled="true"' : '';
+    return `<button class="${cls}" data-acc="${x.id}" aria-label="${label}" aria-pressed="${acc===x.id}"${disabled}${style}>${x.lbl}</button>`;
   }).join('');
   const typeHFlat = CHORD_TYPES.map(t =>
-    `<button class="btn type${type===t.id?' active':''}" data-type="${t.id}">${t.label}</button>`).join('');
+    `<button class="btn type${type===t.id?' active':''}" data-type="${t.id}" aria-pressed="${type===t.id}" aria-label="コードタイプ ${t.label}">${t.label}</button>`).join('');
   const typeHCat = TYPE_CATS.map(cat => {
     const btns = cat.ids.map(id => {
       const t = CHORD_TYPES.find(x => x.id===id); if (!t) return '';
-      return `<button class="btn type${type===t.id?' active':''}" data-type="${t.id}">${t.label}</button>`;
+      return `<button class="btn type${type===t.id?' active':''}" data-type="${t.id}" aria-pressed="${type===t.id}" aria-label="コードタイプ ${t.label}">${t.label}</button>`;
     }).join('');
     return `<div class="pc-cat-label">${cat.label}</div><div class="pc-type-row">${btns}</div>`;
   }).join('');
