@@ -1571,10 +1571,32 @@ function updateSelectedCardUI(selectedFormId) {
   });
 }
 
+function syncMobileFretboardScroll(selectedTps, smooth=false) {
+  if (isDesktop()) return;
+  const fb = document.getElementById('mb-fretboard');
+  if (!fb || !selectedTps) return;
+  const frets = selectedTps
+    .map(tp => tp.fret)
+    .filter(f => typeof f === 'number' && f >= 0);
+  if (!frets.length) return;
+
+  const minFret = Math.min(...frets);
+  const fretGap = 36;
+  const padLeft = 26;
+  const leadFrets = minFret === 0 ? 0 : 1;
+  const target = Math.max(0, padLeft + (minFret - leadFrets) * fretGap - 8);
+  const left = Math.min(target, Math.max(0, fb.scrollWidth - fb.clientWidth));
+
+  fb.scrollLeft = left;
+  if (smooth && typeof fb.scrollTo === 'function') {
+    fb.scrollTo({ left, behavior: 'smooth' });
+  }
+}
+
 // 再同期込みで指板表示を更新する
 // 注: 内部で getSelectionContext() → refreshCurrentEntityAndSelection() を呼ぶため
 //     「指板だけ」ではなく「状態整流 + 指板 DOM 差し替え」を兼ねた関数
-function updateFretboard() {
+function updateFretboard(smoothMobileScroll=false) {
   const { comp, rootDisp, typeId, si, selectedTps } = getSelectionContext();
   if (isDesktop()) {
     const fb=document.getElementById('pc-fretboard');
@@ -1588,6 +1610,7 @@ function updateFretboard() {
     const tb=document.getElementById('mb-tab-btns');
     if (fb) fb.innerHTML = renderFretboard(comp, rootDisp, typeId, si, false, selectedTps);
     if (tb) tb.innerHTML = tabBtnsMB(si);
+    syncMobileFretboardScroll(selectedTps, smoothMobileScroll);
   }
   bind();
 }
@@ -1651,6 +1674,7 @@ function renderMobile() {
     <div class="mb-tab-row" id="mb-tab-btns">${tabBtnsMB(si)}</div>
     <div class="mb-theme-row">${buildThemeHTML(theme)}</div>
   </div>`;
+  syncMobileFretboardScroll(selectedTps);
 }
 
 /* ============================================================
@@ -1742,7 +1766,7 @@ function bind() {
       // 2. カード selected クラスを同期
       updateSelectedCardUI(S.selectedFormId);
       // 3. 指板を再同期 + 更新
-      updateFretboard();
+      updateFretboard(true);
     };
     el.onclick = selectForm;
     el.onkeydown = e => {
